@@ -103,7 +103,7 @@ const rest = new REST({
 
 
 
-rest.setToken(process.env.TOKEN)
+rest.setToken(process.env.TOKEN);
 
 
 
@@ -222,41 +222,44 @@ int.member.roles.remove("1521643199943282851")}});
 
 client.on("interactionCreate", async (int) => { 
 
-if (int.commandName === "ban")
-     {
+if (int.commandName === "ban") {
 
-      let member = int.options.getMember("usermention");
+    let member = int.options.getMember("usermention");
 
-    
-
-let reason = int.options.getString("reason");
- 
-let embed = new EmbedBuilder()
-.setTitle(`لقد تلقيت حظر من سيرفر${int.guild.name}`)
-.addFields({name:"سبب الباند", value:"```" + reason + "```" })
-.setColor("White")
-.setTimestamp()
-
-await member.send({ embeds: [embed]})   
-
-
-
-
-      await member.ban({ reason })
-
-      
-
-     
-
-
-
-      int.reply({
-        
-        content: `تم حظر ${member}`,
-    
-
-        flags: MessageFlags.Ephemeral})
+    if (!member) {
+        return int.reply({
+            content: "❌ هذا العضو غير موجود في السيرفر.",
+            flags: MessageFlags.Ephemeral
+        });
     }
+
+    let reason = int.options.getString("reason") || "بدون سبب";
+
+    let embed = new EmbedBuilder()
+        .setTitle(`لقد تلقيت حظر من سيرفر ${int.guild.name}`)
+        .addFields({
+            name: "سبب الباند",
+            value: "```" + reason + "```"
+        })
+        .setColor("White")
+        .setTimestamp();
+
+    // Try to send DM, but don't crash if DMs are closed
+    try {
+        await member.send({ embeds: [embed] });
+    } catch (err) {
+        console.log(`Cannot send DM to ${member.user.tag}`);
+    }
+
+    await member.ban({ reason });
+
+    await int.reply({
+        content: `✅ تم حظر ${member.user.tag}`,
+        flags: MessageFlags.Ephemeral
+    });
+}
+
+    
 
 })
 
