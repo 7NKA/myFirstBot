@@ -56,7 +56,7 @@ if (msg.content === "button") {
               .setTitle("__🔔the ping role__")
               .addFields({name: "__❓what dose it do__", value: "\nIt give us the right to mension you"+"\nwhen ever we want to"},
                          {name: "__❓what do I get__", value: "\nyou will get to see our news"+"\nand be the first to know about it"},
-               
+                         {name: "__❓how to get it__", value: "\nto get the + " " + "<@&1521643199943282851>" + " " + "just click the button down below"},
                ).setColor("Yellow")
 
 
