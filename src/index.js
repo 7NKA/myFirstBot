@@ -269,7 +269,26 @@ const embed3 = new EmbedBuilder()
 let channel = client.channels.cache.get("1523805053633167575")
 
 channel.send({ embeds: [embed3]})
+        
 
-}})
+}});
 
+clinet.on("interactionCreate", (int) => {
+
+if (int.commandName === "ping!") {
+
+
+const embed4 = new EmbedBuilder()
+.setAuthor({
+    name: int.member.displayName,
+    iconURL: int.user.displayAvatarURL()
+})
+.setDescription("pinged by" + " " + int.user.tag)
+.setTimestamp()
+.setColor("Yellow")
+
+    int.reply({ embeds: [ embed4 ]})
+}
+
+}
 client.login(process.env.TOKEN);
