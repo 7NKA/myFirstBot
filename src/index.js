@@ -26,7 +26,7 @@ const client = new Client({
 
 require('dotenv').config();
 
-const {REST, Routes, ApplicationCommandOptionType, applicationDirectory, ApplicationWebhookEventStatus, ApplicationCommandType, PermissionFlagsBits, PermissionOverwriteManager} = require('discord.js');
+const {REST, Routes, ApplicationCommandOptionType, applicationDirectory, ApplicationWebhookEventStatus, ApplicationCommandType, PermissionOverwriteManager} = require('discord.js');
 
 
 const commands = [ 
@@ -383,7 +383,7 @@ channel.send({ embeds: [embed3]})
 
 client.on("interactionCreate", (int) => {
 
-if (int.commandName === "ping!") {
+if (int.commandName === "ping") {
 
 
 const embed4 = new EmbedBuilder()
