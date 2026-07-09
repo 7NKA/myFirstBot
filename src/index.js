@@ -53,9 +53,9 @@ if (msg.content === "button") {
             embeds: [
 
               new EmbedBuilder()
-              .setTitle("🔔_the ping role_")
-              .addFields({name: "❓_what dose it do_", value: "\n_It give us the right to mension you_"+"\n_when ever we want to_"},
-                         {name: "❓_what do I get_", value: "\n_you will get to see our news_"+"\n_and be the first to know about it_"},
+              .setTitle("🔔__the ping role_")
+              .addFields({name: "❓__what dose it do__", value: "\n__It give us the right to mension you__"+"\n__when ever we want to_"},
+                         {name: "❓__what do I get__", value: "\n__you will get to see our news__"+"\n__and be the first to know about it__"},
                
                ).setColor("Yellow")
 
