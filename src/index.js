@@ -11,6 +11,7 @@ const {
     ActivityType,
     InteractionCallback,
     MessageSearchAuthorType,
+    AuditLogEvent,
     PermissionFlagsBits,
 } = require("discord.js");
 
@@ -35,6 +36,8 @@ client.on("clientReady", (c) => {
 })
 });
 
+// Ping role button message
+
 client.on("messageCreate", (msg) => {
 
     const row = new ActionRowBuilder().addComponents(
@@ -43,8 +46,8 @@ client.on("messageCreate", (msg) => {
             .setLabel("🔔")
             .setStyle(ButtonStyle.Success)
     );
-
-    if (msg.content === "button") {
+    
+if (msg.content === "button") {
 
         msg.channel.send({
             embeds: [
@@ -70,7 +73,9 @@ client.on("messageCreate", (msg) => {
 
 });
 
-client.on("interactionCreate", async (int) => {
+// Ping role give and remove from user
+
+client.on("interactionCreate", (int) => {
 
 if (int.customId === "my_button" && !int.member.roles.cache.has("1521643199943282851") ) {
  
@@ -94,41 +99,19 @@ int.reply({
 
 int.reply({
 
-    content: "the role" + " " + "<@&1521643199943282851>" + " " + "has been removed",
+content: "the role" + " " + "<@&1521643199943282851>" + " " + "has been removed",
 
     flags: MessageFlags.Ephemeral
 
 })
 
-int.member.roles.remove("1521643199943282851") 
+int.member.roles.remove("1521643199943282851")}});
 
+// ban slash command interaction
 
-} else if (int.commandName === "delete-messages") {
+client.on("interactionCreate", async (int) => { 
 
-
-        const amount = int.options.getNumber("delete");
-
-        const messages = await int.channel.messages.fetch({
-            limit: amount
-        });
-
-        if (messages.size > 0) {
-
-            await int.channel.bulkDelete(messages, true);
-
-            return int.reply({
-                content: `تم حذف ${messages.size} من الرسائل`,
-                ephemeral: true,
-            });
-
-        }
-
-        return int.reply({
-            content: "لا توجد رسائل لحذفها.",
-            ephemeral: true,
-        });
-    
-    } else if (int.commandName === "ban")
+if (int.commandName === "ban")
      {
 
       let member = int.options.getMember("usermention");
@@ -137,7 +120,11 @@ int.member.roles.remove("1521643199943282851")
 
 let reason = int.options.getString("reason");
  
-let embed = new EmbedBuilder().setTitle(`لقد تلقيت حظر من سيرفر${int.guild.name}`).addFields({name:"سبب الباند", value:"```" + reason + "```" })
+let embed = new EmbedBuilder()
+.setTitle(`لقد تلقيت حظر من سيرفر${int.guild.name}`)
+.addFields({name:"سبب الباند", value:"```" + reason + "```" })
+.setColor("White")
+.setTimestamp()
 
 await member.send({ embeds: [embed]})   
 
@@ -157,46 +144,132 @@ await member.send({ embeds: [embed]})
         content: `تم حظر ${member}`,
     
 
-        ephemeral: true})
+        flags: MessageFlags.Ephemeral})
     }
 
-});
+})
 
-client.on("channelDelete", (channel) => {
+// channel Create Event log
 
-let channelId = client.channels.cache.get("1523805053633167575")
+client.on("channelCreate", async (channel) => {
 
-const embed = new EmbedBuilder()
-.setTitle("🖥️ a Channel has been deleted!")
-.setTimestamp()
-.setColor("Red")
-.addFields(
-    
-    {name: "📝channel name", value: channel.name },
-     {name: "🆔channel Id", value: "```" + channel.id + "```"})
-
-if (channelId) {channelId.send({ embeds: [embed]})}
-
-});
-
-client.on("channelCreate", (channel) => {
 
 let channelId = client.channels.cache.get("1523805053633167575")
+
+
+const channelLog = await channel.guild.fetchAuditLogs({
+limit: 1,
+
+type: AuditLogEvent.ChannelCreate,
+
+});
+
+const channelAuthor = channelLog.entries.first();
+
+
+
+if (channelAuthor) {
 
 const embed = new EmbedBuilder()
 .setTitle("🖥️ a Channel has been created!")
 .setTimestamp()
 .setColor("Green")
 .addFields(
-    
+    {name: "👤created by", value: channelAuthor.executor.tag},
     {name: "📝channel name", value: channel.name },
      {name: "🆔channel Id", value: "```" + channel.id + "```"})
 
 if (channelId) {channelId.send({ embeds: [embed]})}
 
+}});
+
+// channel Delete Event log
+
+client.on("channelDelete", async (channel) => {
+    
+
+let channelId = client.channels.cache.get("1523805053633167575")
+
+
+const channelLog = await channel.guild.fetchAuditLogs({
+limit: 1,
+
+type: AuditLogEvent.ChannelDelete,
+
 });
 
+const channelAuthor = channelLog.entries.first();
 
 
+
+if (channelAuthor) {
+
+const embed = new EmbedBuilder()
+.setTitle("🖥️ a Channel has been deleted!")
+.setTimestamp()
+.setColor("Red")
+.addFields(
+    {name: "👤deleted by", value: channelAuthor.executor.tag},
+    {name: "📝channel name", value: channel.name },
+     {name: "🆔channel Id", value: "```" + channel.id + "```"})
+
+if (channelId) {channelId.send({ embeds: [embed]})}
+
+}});
+
+// message create Event log
+
+client.on("messageCreate", (int) => {
+
+if (int.channel.id === "1523805053633167575") {return;}
+
+if (int.author.bot) {return; }
+
+const embed2 = new EmbedBuilder()
+.setTitle("✍️Message has been created")
+.addFields({name: "🧑‍🦰Message Author", value: int.author.tag},{name: "📄Message content", value: "```" + int.content + "```" })
+.setTimestamp()
+.setColor("Green")
+
+let channelId = client.channels.cache.get("1523805053633167575")
+
+channelId.send({ embeds: [embed2]})
+
+});
+
+// delete message Event log
+
+client.on("messageDelete", async (msg) => {
+
+if (msg.channel.id === "1523805053633167575") {return;}
+
+if (!msg.guild) {return;}
+
+
+    const deletFech = await msg.guild.fetchAuditLogs({
+
+           limit: 1,
+
+           type: AuditLogEvent.MessageDelete,
+
+    });
+    
+    const delesionlog = deletFech.entries.first();
+
+    
+      if (delesionlog) {
+    
+
+const embed3 = new EmbedBuilder()
+.setTitle("🧹Message has been deleted")
+.addFields({name: "🧑Message deleted by", value: delesionlog.executor.tag},{name: "📄Message content", value: "```" + msg.content + "```" || "nil" })
+.setTimestamp()
+.setColor("Red")
+
+let channel = client.channels.cache.get("1523805053633167575")
+
+channel.send({ embeds: [embed3]})
+
+}})
 
 client.login(process.env.TOKEN);
