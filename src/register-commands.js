@@ -60,9 +60,9 @@ const commands = [
 
 
   },
-  { name: "ping!",
+  { name: "ping",
 
-    description: "mention the ping role",
+  description: "mention the ping role",
 
   }
       
