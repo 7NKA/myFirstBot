@@ -220,7 +220,7 @@ int.member.roles.remove("1521643199943282851")}});
 
 client.on("interactionCreate", async (int) => { 
 
-if (int.commandName === "ban")
+if (int.commandName === "Ban")
      {
 
       let member = int.options.getMember("usermention");
