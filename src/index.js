@@ -391,11 +391,15 @@ const embed4 = new EmbedBuilder()
     name: int.member.displayName,
     iconURL: int.user.displayAvatarURL()
 })
-.setDescription("pinged by" + " " + int.user.tag)
+.setFooter({text: "pinged by" + " " + int.user.tag})
 .setTimestamp()
 .setColor("Yellow")
 
-    int.reply({ embeds: [ embed4 ]})
+    int.reply({ embeds: [ embed4 ], 
+               
+               content: "<&1521643199943282851>"}
+             
+        )
 }
 
 })
