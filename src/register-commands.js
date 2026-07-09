@@ -62,7 +62,7 @@ const commands = [
   },
   { name: "ping",
 
-  description: "mention the ping role",
+  description: "mention the ping role"
 
   }
       
