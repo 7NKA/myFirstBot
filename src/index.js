@@ -394,7 +394,7 @@ const embed4 = new EmbedBuilder()
 .setTimestamp()
 .setColor("Yellow")
 
-    int.reply({ embeds: [ embed4 ], 
+    int.channel.send({ embeds: [ embed4 ], 
             
                content: "<@&1521643199943282851>"}
              
