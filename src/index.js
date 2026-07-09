@@ -273,7 +273,7 @@ channel.send({ embeds: [embed3]})
 
 }});
 
-clinet.on("interactionCreate", (int) => {
+client.on("interactionCreate", (int) => {
 
 if (int.commandName === "ping!") {
 
