@@ -53,7 +53,7 @@ const commands = [
 }]},
   {
     
-    name: "Ban",
+    name: "ban",
 
     description: "Ban someone",
 
@@ -103,7 +103,9 @@ const rest = new REST({
 
 
 
-rest.setToken(process.env.TOKEN);
+rest.setToken(process.env.TOKEN)
+
+
 
 (async () => {
    try {
@@ -220,7 +222,7 @@ int.member.roles.remove("1521643199943282851")}});
 
 client.on("interactionCreate", async (int) => { 
 
-if (int.commandName === "Ban")
+if (int.commandName === "ban")
      {
 
       let member = int.options.getMember("usermention");
