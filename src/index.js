@@ -290,5 +290,5 @@ const embed4 = new EmbedBuilder()
     int.reply({ embeds: [ embed4 ]})
 }
 
-}
+})
 client.login(process.env.TOKEN);
