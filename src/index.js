@@ -146,6 +146,8 @@ client.on("clientReady", (c) => {
 // Ping role button message
 
 client.on("messageCreate", (msg) => {
+   
+    if (message.embeds.length > 0) {return;}
 
     const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
@@ -328,6 +330,8 @@ if (channelId) {channelId.send({ embeds: [embed]})}
 
 client.on("messageCreate", (int) => {
 
+if (message.embeds.length > 0) {return;}
+    
 if (int.channel.id === "1523805053633167575") {return;}
 
 if (int.author.bot) {return; }
@@ -348,6 +352,8 @@ channelId.send({ embeds: [embed2]})
 
 client.on("messageDelete", async (msg) => {
 
+if (message.embeds.length > 0) {return;}
+    
 if (msg.channel.id === "1523805053633167575") {return;}
 
 if (!msg.guild) {return;}
