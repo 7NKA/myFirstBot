@@ -101,8 +101,7 @@ const rest = new REST({
     version: 10,
 });
 
-console.log(rest);
-console.log(typeof rest.setToken);
+
 
 rest.setToken(process.env.TOKEN);
 
