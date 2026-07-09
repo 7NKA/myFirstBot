@@ -51,20 +51,26 @@ const commands = [
           description: "give a reason for the ban",
 
           type: ApplicationCommandOptionType.String
-        }
-    ],
+        },
+        
+    ],  
     
 
 
 
 
+  },
+  { name: "ping!",
+
+    description: "mention the ping role",
+
   }
+      
 
 
 
 
 ];
-
 const rest = new REST({
     version: 10,
 });
