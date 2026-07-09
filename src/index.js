@@ -53,7 +53,7 @@ const commands = [
 }]},
   {
     
-    name: "ban",
+    name: "Ban",
 
     description: "Ban someone",
 
