@@ -397,8 +397,10 @@ const embed4 = new EmbedBuilder()
     int.channel.send({ embeds: [ embed4 ], 
             
                content: "<@&1521643199943282851>"}
-             
+    
         )
+    int.reply({ content: "ping succeed!",
+               flags: MessageFlags.Ephemeral})
 }
 
 })
