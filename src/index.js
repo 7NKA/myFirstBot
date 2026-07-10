@@ -419,7 +419,7 @@ if (interaction.commandName === "ping" ) {
 
 if (userId === interaction.user.id) {
 
-return interaction.reply({content: "wait for"+ "```" + "5m" +"```" + "for next ping",  flags: MessageFlags.Ephemeral })}
+return interaction.reply({content: "wait for"+ "```" + "10m" +"```" + "for next ping",  flags: MessageFlags.Ephemeral })}
 
     
 
@@ -444,7 +444,7 @@ const embed4 = new EmbedBuilder()
 
 userId = interaction.user.id
 
-await new Promise(resolve => setTimeout(resolve, 4000));
+await new Promise(resolve => setTimeout(resolve, 600000));
 
 interaction.user.send({embeds: [new EmbedBuilder().setDescription("**[Go to server](https://discord.gg/8EvubxT5)**").setColor("Green").setThumbnail(interaction.guild.iconURL()).setTimestamp().setTitle(`__🥳You can ping now! in ${interaction.guild} server__`)]})
 
