@@ -200,6 +200,8 @@ if (msg.content === "button") {
 
 client.on("interactionCreate", (iny) => {
 
+if (!iny.isButton()) return;
+    
 if (iny.customId === "my_button" && !iny.member.roles.cache.has("1521643199943282851") ) {
  
 
