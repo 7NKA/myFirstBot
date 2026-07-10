@@ -433,7 +433,7 @@ const embed4 = new EmbedBuilder()
 .setFooter({text: "🔔pinged by" + " " + interaction.user.username})
 .setTimestamp()
 .setColor("Yellow")
-.setTitle(interaction.options.get("message") || null )
+.setTitle(interaction.options.getString("message") || null )
 
     interaction.channel.send({ embeds: [ embed4 ], 
             
