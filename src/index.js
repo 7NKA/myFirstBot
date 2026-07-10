@@ -251,7 +251,7 @@ if (int.commandName === "ban") {
         .setTitle(`__🚫You just got banned from ${int.guild.name} server__`)
         .addFields({name: "__❓reason__", value: "```" + reason + "```"})
         .setColor("White")
-        .setAuthor({name: int.user.globalName, iconURL: int.user.avatarURL})
+        .setAuthor({name: int.user.globalName, iconURL: int.user.avatarURL()})
         .setThumbnail(int.guild.iconURL())
         .setTimestamp();
 
