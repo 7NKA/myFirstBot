@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+
+
 const {
     Client,
     GatewayIntentBits,
@@ -27,6 +29,7 @@ const client = new Client({
 require('dotenv').config();
 
 const {REST, Routes, ApplicationCommandOptionType, applicationDirectory, ApplicationWebhookEventStatus, ApplicationCommandType, PermissionOverwriteManager} = require('discord.js');
+
 
 
 const commands = [ 
@@ -88,7 +91,16 @@ const commands = [
   },
   { name: "ping",
 
-  description: "mention the ping role"
+  description: "mention the ping role",
+
+  options: [{
+    name: "message",
+
+    description: "send a message with the ping",
+
+    type: ApplicationCommandOptionType.String
+
+  }]
 
   }
       
@@ -197,7 +209,7 @@ int.member.roles.add("1521643199943282851")
 
 int.reply({
 
-  content: "the role" + " " + "<@&1521643199943282851>" + " " + "has been add",
+  content: "🔔the role" + " " + "<@&1521643199943282851>" + " " + "has been add",
 
   flags: MessageFlags.Ephemeral
 
@@ -210,7 +222,7 @@ int.reply({
 
 int.reply({
 
-content: "the role" + " " + "<@&1521643199943282851>" + " " + "has been removed",
+content: "🔕the role" + " " + "<@&1521643199943282851>" + " " + "has been removed",
 
     flags: MessageFlags.Ephemeral
 
@@ -228,23 +240,23 @@ if (int.commandName === "ban") {
 
     if (!member) {
         return int.reply({
-            content: "❌ هذا العضو غير موجود في السيرفر.",
+            content: "🤔couldn't find user",
             flags: MessageFlags.Ephemeral
         });
     }
 
-    let reason = int.options.getString("reason") || "بدون سبب";
+    let reason = int.options.getString("reason") || "No reason";
 
     let embed = new EmbedBuilder()
-        .setTitle(`لقد تلقيت حظر من سيرفر ${int.guild.name}`)
-        .addFields({
-            name: "سبب الباند",
-            value: "```" + reason + "```"
-        })
+        .setTitle(`__🚫You just got banned from ${int.guild.name} server__`)
+        .addFields({name: "__❓reason__", value: "```" + reason + "```"})
         .setColor("White")
+        .setAuthor({name: int.user.globalName, iconURL: int.user.avatarURL})
+        .setThumbnail(int.guild.iconURL())
         .setTimestamp();
 
     // Try to send DM, but don't crash if DMs are closed
+
     try {
         await member.send({ embeds: [embed] });
     } catch (err) {
@@ -285,13 +297,14 @@ const channelAuthor = channelLog.entries.first();
 if (channelAuthor) {
 
 const embed = new EmbedBuilder()
-.setTitle("🖥️ a Channel has been created!")
+.setTitle("__🖥️ a Channel has been created!__")
+.setDescription("more info")
 .setTimestamp()
 .setColor("Green")
 .addFields(
-    {name: "👤created by", value: channelAuthor.executor.tag},
-    {name: "📝channel name", value: channel.name },
-     {name: "🆔channel Id", value: "```" + channel.id + "```"})
+    {name: "__👤Created by__", value: `${channelAuthor.executor}`},
+    {name: "__📝Channel name__", value: channel.name },
+     {name: "__🆔Channel Id__", value: "```" + channel.id + "```"})
 
 if (channelId) {channelId.send({ embeds: [embed]})}
 
@@ -305,27 +318,30 @@ client.on("channelDelete", async (channel) => {
 let channelId = client.channels.cache.get("1523805053633167575")
 
 
-const channelLog = await channel.guild.fetchAuditLogs({
+const channelLog2 = await channel.guild.fetchAuditLogs({
 limit: 1,
 
 type: AuditLogEvent.ChannelDelete,
 
 });
 
-const channelAuthor = channelLog.entries.first();
+
+
+const channelAuthor2 = channelLog2.entries.first();
 
 
 
-if (channelAuthor) {
+if (channelAuthor2) {
 
 const embed = new EmbedBuilder()
-.setTitle("🖥️ a Channel has been deleted!")
+.setTitle("__🖥️ a Channel has been deleted!__")
+.setDescription("more info")
 .setTimestamp()
 .setColor("Red")
 .addFields(
-    {name: "👤deleted by", value: channelAuthor.executor.tag},
-    {name: "📝channel name", value: channel.name },
-     {name: "🆔channel Id", value: "```" + channel.id + "```"})
+    {name: "__👤Deleted by__", value: `${channelAuthor2.executor}`},
+    {name: "__📝Channel name__", value: channel.name },
+     {name: "__🆔Channel Id__", value: "```" + channel.id + "```"})
 
 if (channelId) {channelId.send({ embeds: [embed]})}
 
@@ -333,17 +349,18 @@ if (channelId) {channelId.send({ embeds: [embed]})}
 
 // message create Event log
 
-client.on("messageCreate", (int) => {
+client.on("messageCreate", (msg) => {
 
-if (int.embeds.length > 0) {return;}
+if (msg.embeds.length > 0) {return;}
     
-if (int.channel.id === "1523805053633167575") {return;}
+if (msg.channel.id === "1523805053633167575") {return;}
 
-if (int.author.bot) {return; }
+if (msg.author.bot) {return; }
 
 const embed2 = new EmbedBuilder()
-.setTitle("✍️Message has been created")
-.addFields({name: "🧑‍🦰Message Author", value: int.author.tag},{name: "📄Message content", value: "```" + int.content + "```" })
+.setTitle("__✍️Message has been created__")
+.setDescription("more info")
+.addFields({name: "__👤Message Author__", value: `${msg.author}`},{name: "__📄Message content__", value: "```" + msg.content + "```" })
 .setTimestamp()
 .setColor("Green")
 
@@ -379,8 +396,9 @@ if (!msg.guild) {return;}
     
 
 const embed3 = new EmbedBuilder()
-.setTitle("🧹Message has been deleted")
-.addFields({name: "🧑Message deleted by", value: delesionlog.executor.tag},{name: "📄Message content", value: "```" + msg.content + "```" || "nil" })
+.setTitle("__🧹Message has been deleted__")
+.setDescription("more info")
+.addFields({name: "__👤Message Author__", value: `${msg.author}`},{name: "__👤Message deleted by__", value: "<@" + delesionlog.executor.id+ ">"},{name: "__📄Message content__", value: "```" + msg.content + "```" || "nil" })
 .setTimestamp()
 .setColor("Red")
 
@@ -391,28 +409,46 @@ channel.send({ embeds: [embed3]})
 
 }});
 
-client.on("interactionCreate", (int) => {
+let userId = {}
 
-if (int.commandName === "ping") {
 
+
+client.on("interactionCreate", async (interaction) => {
+
+if (interaction.commandName === "ping" ) {
+
+if (userId === interaction.user.id) {
+
+return interaction.reply({content: "wait for"+ "```" + "5m" +"```" + "for next ping",  flags: MessageFlags.Ephemeral })}
+
+    
 
 const embed4 = new EmbedBuilder()
 .setAuthor({
-    name: int.member.displayName,
-    iconURL: int.user.displayAvatarURL()
+    name: interaction.member.displayName,
+    iconURL: interaction.user.displayAvatarURL()
 })
-.setFooter({text: "pinged by" + " " + int.user.tag})
+.setFooter({text: "🔔pinged by" + " " + interaction.user.username})
 .setTimestamp()
 .setColor("Yellow")
+.setTitle(interaction.options.get("message") || null )
 
-    int.channel.send({ embeds: [ embed4 ], 
+    interaction.channel.send({ embeds: [ embed4 ], 
             
                content: "<@&1521643199943282851>"}
     
         )
-    int.reply({ content: "ping succeed!",
+    interaction.reply({ content: "ping succeed!",
                flags: MessageFlags.Ephemeral})
 }
+
+userId = interaction.user.id
+
+await new Promise(resolve => setTimeout(resolve, 4000));
+
+interaction.user.send({embeds: [new EmbedBuilder().setDescription("**[Go to server](https://discord.gg/8EvubxT5)**").setColor("Green").setThumbnail(interaction.guild.iconURL()).setTimestamp().setTitle(`__🥳You can ping now! in ${interaction.guild} server__`)]})
+
+userId = {}
 
 })
 client.login(process.env.TOKEN);
