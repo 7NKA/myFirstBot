@@ -411,19 +411,18 @@ channel.send({ embeds: [embed3]})
 
 }});
 
-let userId = {}
+const Users = new Map();
 
 
 
 client.on("interactionCreate", async (interaction) => {
 
-if (interaction.commandName === "ping" ) {
+if (interaction.commandName !== "ping") return;
 
-if (userId === interaction.user.id) {
+    if (Users.has(interaction.user.id)) {
 
 return interaction.reply({content: "wait for"+ "```" + "10m" +"```" + "for next ping",  flags: MessageFlags.Ephemeral })}
 
-    
 
 const embed4 = new EmbedBuilder()
 .setAuthor({
@@ -435,22 +434,34 @@ const embed4 = new EmbedBuilder()
 .setColor("Yellow")
 .setTitle(interaction.options.getString("message") || null )
 
-    interaction.channel.send({ embeds: [ embed4 ], 
-            
-               content: "<@&1521643199943282851>"}
-    
-        )
-    interaction.reply({ content: "ping succeed!",
-               flags: MessageFlags.Ephemeral})
-}
+Users.set(interaction.user.id, true);
 
-userId = interaction.user.id
+try {
+   await interaction.channel.send({
+    content: "<@&1521643199943282851>",
+    embeds: [embed4]
+});
+
+    await interaction.reply({
+    content: "ping succeed!",
+    flags: MessageFlags.Ephemeral
+});
 
 await new Promise(resolve => setTimeout(resolve, 600000));
-
-interaction.user.send({embeds: [new EmbedBuilder().setDescription("**[Go to server](https://discord.gg/8EvubxT5)**").setColor("Green").setThumbnail(interaction.guild.iconURL()).setTimestamp().setTitle(`__🥳You can ping now! in ${interaction.guild} server__`)]})
-
-userId = {}
+    
+    await interaction.user.send({
+    embeds: [
+        new EmbedBuilder()
+            .setTitle(`__🥳You can ping now! in ${interaction.guild} server__`)
+            .setDescription("**[Go to server](https://discord.gg/8EvubxT5)**")
+            .setThumbnail(interaction.guild.iconURL())
+            .setColor("Green")
+            .setTimestamp()
+    ]
+});
+} finally {
+    Users.delete(interaction.user.id);
+}
 
 })
 client.login(process.env.TOKEN);
