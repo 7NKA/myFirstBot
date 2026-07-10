@@ -198,16 +198,16 @@ if (msg.content === "button") {
 
 // Ping role give and remove from user
 
-client.on("interactionCreate", (int) => {
+client.on("interactionCreate", (iny) => {
 
-if (int.customId === "my_button" && !int.member.roles.cache.has("1521643199943282851") ) {
+if (iny.customId === "my_button" && !iny.member.roles.cache.has("1521643199943282851") ) {
  
 
 
-int.member.roles.add("1521643199943282851")
+iny.member.roles.add("1521643199943282851")
 
 
-int.reply({
+iny.reply({
 
   content: "🔔the role" + " " + "<@&1521643199943282851>" + " " + "has been add",
 
@@ -218,9 +218,9 @@ int.reply({
 
 
 
-} else if (int.member.roles.cache.has('1521643199943282851')) {
+} else if (iny.member.roles.cache.has('1521643199943282851')) {
 
-int.reply({
+iny.reply({
 
 content: "🔕the role" + " " + "<@&1521643199943282851>" + " " + "has been removed",
 
@@ -228,7 +228,7 @@ content: "🔕the role" + " " + "<@&1521643199943282851>" + " " + "has been remo
 
 })
 
-int.member.roles.remove("1521643199943282851")}});
+iny.member.roles.remove("1521643199943282851")}});
 
 // ban slash command interaction
 
