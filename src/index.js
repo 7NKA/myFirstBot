@@ -514,17 +514,17 @@ const Embed = new EmbedBuilder().setColor("White")
 
     if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
 
-    const msg = await player.send({ embeds: [Embed], components: [row] })
+    await player.send({ embeds: [Embed], components: [row] })
+
 
   
-
     await int.reply({content: "✅challeng has been sent",
                 flags: MessageFlags.Ephemeral
 
                 
     });
 
-    message.set("message",msg.id)
+
 
    
 
@@ -539,9 +539,54 @@ const Embed = new EmbedBuilder().setColor("White")
 
 
 }
+       if (int.customId === "challenge_button_no") {
+
+    return int.update({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle("✅ denied successfully")
+                .setColor("Blue")
+        ],
+        components: []
+    });
+ if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
+
+    await player.send({ embeds: [Embed], components: [row] })
+
+
+  
+    await int.reply({content: "✅challeng has been sent",
+                flags: MessageFlags.Ephemeral
+
+                
+    });
 
 
 
+   
+
+    players.set("playId", int.user.id)
+
+    players.set("play", int.user.globalName)
+
+
+
+
+
+
+
+}
+       if (int.customId === "challenge_button_yes") {
+
+    return int.update({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle("✅ accepted successfully")
+                .setColor("Blue")
+        ],
+        components: []
+    });
+}
     if (int.isButton) {
 
         
@@ -550,7 +595,7 @@ if (int.customId === "challenge_button_yes") {
 
 await players2.set("player", int.user.id)
 
-await int.reply("✅Challeng has been accept")
+
 
 client.guilds.cache.first().channels.create({
 
@@ -575,7 +620,9 @@ parent: "1525311378922016839"
     
     
     }
+        
 }
+    
 
 
 
