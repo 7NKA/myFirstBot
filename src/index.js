@@ -6,6 +6,7 @@ const {
     Client,
     GatewayIntentBits,
     EmbedBuilder,
+    ChannelType,
     MessageFlags,
     ButtonBuilder,
     ButtonStyle,
@@ -37,17 +38,17 @@ const commands = [
 
 {
 
-  name: "delete-messages",
+  name: "challenge",
 
-  description: "delete",
+  description: "challenge some one",
 
   options: [{
 
-    name: "delete",
+    name: "person",
 
-    description: "number of the messages",
+    description: "the person you want to challenge",
 
-    type: ApplicationCommandOptionType.Number,
+    type: ApplicationCommandOptionType.Mentionable,
 
     required: true,
 
@@ -220,7 +221,7 @@ iny.reply({
 
 
 
-} else if (iny.member.roles.cache.has('1521643199943282851')) {
+ if (iny.member.roles.cache.has('1521643199943282851')) {
 
 iny.reply({
 
@@ -230,7 +231,10 @@ content: "🔕the role" + " " + "<@&1521643199943282851>" + " " + "has been remo
 
 })
 
-iny.member.roles.remove("1521643199943282851")}});
+iny.member.roles.remove("1521643199943282851")
+
+
+}}});
 
 // ban slash command interaction
 
@@ -281,6 +285,7 @@ if (int.commandName === "ban") {
 
 client.on("channelCreate", async (channel) => {
 
+   
 
 let channelId = client.channels.cache.get("1523805053633167575")
 
@@ -419,6 +424,7 @@ client.on("interactionCreate", async (interaction) => {
 
 if (interaction.commandName !== "ping") return;
 
+
     if (Users.has(interaction.user.id)) {
 
 return interaction.reply({content: "wait for"+ "```" + "10m" +"```" + "for next ping",  flags: MessageFlags.Ephemeral })}
@@ -463,5 +469,146 @@ await new Promise(resolve => setTimeout(resolve, 600000));
     Users.delete(interaction.user.id);
 }
 
+});
+
+// chaleng system
+
+const players = new Map();
+
+const players2 = new Map();
+
+const message = new Map();
+
+
+client.on("interactionCreate", async (int) => {
+
+
+if (!int.isChatInputCommand) return;
+
+if (int.commandName === "challenge") {
+
+
+
+if (players.has(int.user.id)) {return await int.reply({content: "You have already sent a chanlleng to some one, wait for them to reply!",
+flags: MessageFlags.Ephemeral
+})}
+
+const player = int.options.getMember("person")
+
+const Yes = new ButtonBuilder().setCustomId("challenge_button_yes").setLabel("✅").setStyle(ButtonStyle.Success)
+
+const No = new ButtonBuilder().setCustomId("challenge_button_no").setLabel("❌").setStyle(ButtonStyle.Danger)
+
+const row = new ActionRowBuilder().addComponents(Yes, No)
+
+const Embed = new EmbedBuilder().setColor("White")
+.setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
+.setTitle("__❗Some one has challenged you__")
+.setDescription(`From: ${int.guild} server`)
+.setTimestamp()
+.addFields(
+    {name: "__🤔Who is it__", value: `•${int.user.globalName}`},
+     {name: "__🎮Game type__", value: "chairs game"},
+    {name: "__💢How to Deny it__", value: "•just click the ❌ button down below"},
+    {name: "__👍How to accept it__", value: "•just click the ✅ button down below"});
+
+    if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
+
+    const msg = await player.send({ embeds: [Embed], components: [row] })
+
+  
+
+    await int.reply({content: "✅challeng has been sent",
+                flags: MessageFlags.Ephemeral
+
+                
+    });
+
+    message.set("message",msg.id)
+
+   
+
+    players.set("playId", int.user.id)
+
+    players.set("play", int.user.globalName)
+
+
+
+
+
+
+
+}
+
+
+
+    if (int.isButton) {
+
+        
+
+if (int.customId === "challenge_button_yes") {
+
+await players2.set("player", int.user.id)
+
+await int.reply("✅Challeng has been accept")
+
+client.guilds.cache.first().channels.create({
+
+
+
+name: `${int.user.globalName} vs ${players.get("play")}`,
+
+type: ChannelType.GuildText,
+
+parent: "1525311378922016839"
+
+
 })
+
+    }
+
+    const messageId = message.get("message")
+
+    if (int.customId === "challenge_button_no") { 
+        
+        await int.reply({content: "❌Challeng has been deny"})
+    
+    
+    }
+}
+
+
+
+
+
+
+
+})
+
+client.on("channelCreate", (channel) => {if (channel.parent.name === "Challenges") {
+    
+    const Row = new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("🎮").setCustomId("ready").setStyle(ButtonStyle.Success))
+    
+    channel.send({
+
+ 
+
+content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">",
+
+embeds: [new EmbedBuilder()
+    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
+    .setColor("Green")
+    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
+    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
+        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
+    )
+
+
+
+],
+
+components: [Row]
+
+
+ })}})
 client.login(process.env.TOKEN);
