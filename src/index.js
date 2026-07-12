@@ -16,6 +16,7 @@ const {
     MessageSearchAuthorType,
     AuditLogEvent,
     PermissionFlagsBits,
+    time,
 } = require("discord.js");
 
 const client = new Client({
@@ -199,42 +200,37 @@ if (msg.content === "button") {
 
 // Ping role give and remove from user
 
-client.on("interactionCreate", (iny) => {
+client.on("interactionCreate", async (iny) => {
 
-if (!iny.isButton()) return;
-    
-if (iny.customId === "my_button" && !iny.member.roles.cache.has("1521643199943282851") ) {
- 
+    if (!iny.isButton()) return;
 
+    if (iny.customId === "my_button") {
 
-iny.member.roles.add("1521643199943282851")
+        const roleId = "1521643199943282851";
 
+        if (!iny.member.roles.cache.has(roleId)) {
 
-iny.reply({
+            await iny.member.roles.add(roleId);
 
-  content: "🔔the role" + " " + "<@&1521643199943282851>" + " " + "has been add",
+            await iny.reply({
+                content: "🔔 the role <@&1521643199943282851> has been added",
+                flags: MessageFlags.Ephemeral
+            });
 
-  flags: MessageFlags.Ephemeral
+        } else {
 
+            await iny.member.roles.remove(roleId);
 
-})
+            await iny.reply({
+                content: "🔕 the role <@&1521643199943282851> has been removed",
+                flags: MessageFlags.Ephemeral
+            });
 
+        }
 
+    }
 
- if (iny.member.roles.cache.has('1521643199943282851')) {
-
-iny.reply({
-
-content: "🔕the role" + " " + "<@&1521643199943282851>" + " " + "has been removed",
-
-    flags: MessageFlags.Ephemeral
-
-})
-
-iny.member.roles.remove("1521643199943282851")
-
-
-}}});
+});
 
 // ban slash command interaction
 
@@ -279,146 +275,13 @@ if (int.commandName === "ban") {
 
     
 
-})
-
-// channel Create Event log
-
-client.on("channelCreate", async (channel) => {
-
-   
-
-let channelId = client.channels.cache.get("1523805053633167575")
-
-
-const channelLog = await channel.guild.fetchAuditLogs({
-limit: 1,
-
-type: AuditLogEvent.ChannelCreate,
-
-});
-
-const channelAuthor = channelLog.entries.first();
-
-
-
-if (channelAuthor) {
-
-const embed = new EmbedBuilder()
-.setTitle("__🖥️ a Channel has been created!__")
-.setDescription("more info")
-.setTimestamp()
-.setColor("Green")
-.addFields(
-    {name: "__👤Created by__", value: `${channelAuthor.executor}`},
-    {name: "__📝Channel name__", value: channel.name },
-     {name: "__🆔Channel Id__", value: "```" + channel.id + "```"})
-
-if (channelId) {channelId.send({ embeds: [embed]})}
-
-}});
-
-// channel Delete Event log
-
-client.on("channelDelete", async (channel) => {
-    
-
-let channelId = client.channels.cache.get("1523805053633167575")
-
-
-const channelLog2 = await channel.guild.fetchAuditLogs({
-limit: 1,
-
-type: AuditLogEvent.ChannelDelete,
-
 });
 
 
 
-const channelAuthor2 = channelLog2.entries.first();
-
-
-
-if (channelAuthor2) {
-
-const embed = new EmbedBuilder()
-.setTitle("__🖥️ a Channel has been deleted!__")
-.setDescription("more info")
-.setTimestamp()
-.setColor("Red")
-.addFields(
-    {name: "__👤Deleted by__", value: `${channelAuthor2.executor}`},
-    {name: "__📝Channel name__", value: channel.name },
-     {name: "__🆔Channel Id__", value: "```" + channel.id + "```"})
-
-if (channelId) {channelId.send({ embeds: [embed]})}
-
-}});
-
-// message create Event log
-
-client.on("messageCreate", (msg) => {
-
-if (msg.embeds.length > 0) {return;}
-    
-if (msg.channel.id === "1523805053633167575") {return;}
-
-if (msg.author.bot) {return; }
-
-const embed2 = new EmbedBuilder()
-.setTitle("__✍️Message has been created__")
-.setDescription("more info")
-.addFields({name: "__👤Message Author__", value: `${msg.author}`},{name: "__📄Message content__", value: "```" + msg.content + "```" })
-.setTimestamp()
-.setColor("Green")
-
-let channelId = client.channels.cache.get("1523805053633167575")
-
-channelId.send({ embeds: [embed2]})
-
-});
-
-// delete message Event log
-
-client.on("messageDelete", async (msg) => {
-
-if (msg.embeds.length > 0) {return;}
-    
-if (msg.channel.id === "1523805053633167575") {return;}
-
-if (!msg.guild) {return;}
-
-
-    const deletFech = await msg.guild.fetchAuditLogs({
-
-           limit: 1,
-
-           type: AuditLogEvent.MessageDelete,
-
-    });
-    
-    const delesionlog = deletFech.entries.first();
-
-    
-      if (delesionlog) {
-    
-
-const embed3 = new EmbedBuilder()
-.setTitle("__🧹Message has been deleted__")
-.setDescription("more info")
-.addFields({name: "__👤Message Author__", value: `${msg.author}`},{name: "__👤Message deleted by__", value: "<@" + delesionlog.executor.id+ ">"},{name: "__📄Message content__", value: "```" + msg.content + "```" || "nil" })
-.setTimestamp()
-.setColor("Red")
-
-let channel = client.channels.cache.get("1523805053633167575")
-
-channel.send({ embeds: [embed3]})
-        
-
-}});
+// ping system
 
 const Users = new Map();
-
-
 
 client.on("interactionCreate", async (interaction) => {
 
@@ -471,17 +334,18 @@ await new Promise(resolve => setTimeout(resolve, 600000));
 
 });
 
-// chaleng system
+// challeng system
 
 const players = new Map();
 
 const players2 = new Map();
 
-const message = new Map();
+const players3 = new Set();
+
+let start = 0
 
 
 client.on("interactionCreate", async (int) => {
-
 
 if (!int.isChatInputCommand) return;
 
@@ -501,7 +365,7 @@ const No = new ButtonBuilder().setCustomId("challenge_button_no").setLabel("❌"
 
 const row = new ActionRowBuilder().addComponents(Yes, No)
 
-const Embed = new EmbedBuilder().setColor("White")
+const Embede = new EmbedBuilder().setColor("White")
 .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
 .setTitle("__❗Some one has challenged you__")
 .setDescription(`From: ${int.guild} server`)
@@ -514,7 +378,7 @@ const Embed = new EmbedBuilder().setColor("White")
 
     if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
 
-    await player.send({ embeds: [Embed], components: [row] })
+    await player.send({ embeds: [Embede], components: [row] })
 
 
   
@@ -569,14 +433,35 @@ const Embed = new EmbedBuilder().setColor("White")
 
     players.set("play", int.user.globalName)
 
-
+    players.get("players")
 
 
 
 
 
 }
-       if (int.customId === "challenge_button_yes") {
+    if (int.isButton) {
+
+
+    
+
+if (int.customId === "challenge_button_yes") {
+
+
+    await players2.set("player", int.user.id)
+
+
+    client.guilds.cache.first().channels.create({
+
+
+
+    name: `${int.user.globalName} vs ${players.get("play")}`,
+
+type: ChannelType.GuildText,
+
+parent: "1525311378922016839"
+
+       })
 
     return int.update({
         embeds: [
@@ -587,50 +472,129 @@ const Embed = new EmbedBuilder().setColor("White")
         components: []
     });
 }
-    if (int.isButton) {
 
-        
-
-if (int.customId === "challenge_button_yes") {
-
-await players2.set("player", int.user.id)
-
-
-
-client.guilds.cache.first().channels.create({
-
-
-
-name: `${int.user.globalName} vs ${players.get("play")}`,
-
-type: ChannelType.GuildText,
-
-parent: "1525311378922016839"
-
-
-})
-
-    }
-
-    const messageId = message.get("message")
 
     if (int.customId === "challenge_button_no") { 
         
-        await int.reply({content: "❌Challeng has been deny"})
-    
-    
-    }
-        
+   return int.update({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle("✅ accepted successfully")
+                .setColor("Blue")
+        ],
+        components: []
+    });
 }
+
+
+
+    if (int.customId === "ready") {
+
     
 
 
+     if (players3.has(int.user.id)) {
+
+        start -= 1
+
+              await int.update({
+
+ 
+
+content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " +  " " + "👥"+"("+start+"/"+"2"+")",
+
+embeds: [new EmbedBuilder()
+    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
+    .setColor("Green")
+    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
+    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
+        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
+    )
+
+
+
+],
+
+components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("🎮").setCustomId("ready").setStyle(ButtonStyle.Success))]})
+
+     players3.delete(int.user.id)
+        
+  await int.followUp({content: "❌not ready", flags: MessageFlags.Ephemeral})
+     
+        
+     
+
+     } else {
+
+           players3.add(int.user.id) 
+
+           start += 1
+
+                 await int.update({
+
+ 
+
+content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " +  " " + "👥"+"("+start+"/"+"2"+")",
+
+embeds: [new EmbedBuilder()
+    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
+    .setColor("Green")
+    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
+    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
+        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
+    )
+
+
+
+],
+
+components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("🎮").setCustomId("ready").setStyle(ButtonStyle.Success))]})
+
+            await int.followUp({content: "✅ready", flags: MessageFlags.Ephemeral})
+
+
+    }
+
+      if (start === 2) {
+
+         let time = 10
+
+        
+        for (let index = 1; index <= 10; index++) {
+            
+            time -= 1
+
+           int.channel.send("⏳Game is starting in" + " "+ time + "...")
+        
+           await new Promise(resolve => setTimeout(resolve, 3000));
+        
+
+        const messages = await int.channel.messages.fetch({ limit: 1});
+
+        await int.channel.bulkDelete(messages, true);
+
+        if (start !== 2) {break;}
 
 
 
 
+        }
 
-})
+        const message = int.followUp("😭Game just canceled")
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        int.channel.delete();
+
+      }
+
+
+      }
+
+    }
+
+  }
+)
 
 client.on("channelCreate", (channel) => {if (channel.parent.name === "Challenges") {
     
@@ -640,7 +604,7 @@ client.on("channelCreate", (channel) => {if (channel.parent.name === "Challenges
 
  
 
-content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">",
+content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " + " "+ "👥"+"("+start+"/"+"2"+")",
 
 embeds: [new EmbedBuilder()
     .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
@@ -657,5 +621,5 @@ embeds: [new EmbedBuilder()
 components: [Row]
 
 
- })}})
+ } ) } })
 client.login(process.env.TOKEN);
