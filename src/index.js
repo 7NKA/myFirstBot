@@ -338,9 +338,15 @@ await new Promise(resolve => setTimeout(resolve, 600000));
 
 const players = new Map();
 
+const challeng = new Map();
+
 const players2 = new Map();
 
 const players3 = new Set();
+
+const timeout = new Map();
+
+
 
 let start = 0
 
@@ -351,13 +357,22 @@ if (!int.isChatInputCommand) return;
 
 if (int.commandName === "challenge") {
 
+const name = int.options.getUser("person")
 
-
-if (players.has(int.user.id)) {return await int.reply({content: "You have already sent a chanlleng to some one, wait for them to reply!",
+    if (challeng.get("playIdd") === int.user.id) {return await int.reply({content: `❌ You have already sent a challeng to ${name}
+        wait for him to reply first` ,
 flags: MessageFlags.Ephemeral
-})}
 
-const player = int.options.getMember("person")
+
+})} else {
+
+     
+
+// var
+
+const player = int.options.getUser("person")
+
+
 
 const Yes = new ButtonBuilder().setCustomId("challenge_button_yes").setLabel("✅").setStyle(ButtonStyle.Success)
 
@@ -366,6 +381,8 @@ const No = new ButtonBuilder().setCustomId("challenge_button_no").setLabel("❌"
 const row = new ActionRowBuilder().addComponents(Yes, No)
 
 const Embede = new EmbedBuilder().setColor("White")
+
+
 .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
 .setTitle("__❗Some one has challenged you__")
 .setDescription(`From: ${int.guild} server`)
@@ -378,19 +395,46 @@ const Embede = new EmbedBuilder().setColor("White")
 
     if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
 
-    await player.send({ embeds: [Embede], components: [row] })
+    if (player.id === int.user.id) {return int.reply({content: "❌ You can't challeng your self", flags: MessageFlags.Ephemeral})}
+
+    if (player.bot) {return int.reply({content: "❌ You can't challeng a bot", flags: MessageFlags.Ephemeral})}
+
+    
+     const msg = await player.send({ embeds: [Embede], components: [row] })
+
+     timeout.set("time", true)
+
+const Timeout = setTimeout(async () => {
+
+    if (!timeout.has("time")) return;
+
+     challeng.delete("playIdd")
 
 
-  
+
+    await msg.edit({
+        embeds: [
+            new EmbedBuilder()
+                .setTitle("❌challeng expierd")
+                .setColor("Red")
+                .setTimestamp()
+        ],
+        components: []
+    });
+}, 60000);
+
     await int.reply({content: "✅challeng has been sent",
                 flags: MessageFlags.Ephemeral
 
                 
     });
 
+challeng.set("playIdd", int.user.id)
 
 
-   
+}
+    
+    
 
     players.set("playId", int.user.id)
 
@@ -405,17 +449,19 @@ const Embede = new EmbedBuilder().setColor("White")
 }
        if (int.customId === "challenge_button_no") {
 
+timeout.delete("time")
+
+  challeng.delete("playIdd")
+
     return int.update({
         embeds: [
             new EmbedBuilder()
-                .setTitle("✅ denied successfully")
-                .setColor("Blue")
+                .setTitle("❌ denied successfully")
+                .setColor("Red")
+                .setTimestamp()
         ],
         components: []
     });
- if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
-
-    await player.send({ embeds: [Embed], components: [row] })
 
 
   
@@ -447,6 +493,7 @@ const Embede = new EmbedBuilder().setColor("White")
 
 if (int.customId === "challenge_button_yes") {
 
+    timeout.delete()
 
     await players2.set("player", int.user.id)
 
@@ -467,20 +514,7 @@ parent: "1525311378922016839"
         embeds: [
             new EmbedBuilder()
                 .setTitle("✅ accepted successfully")
-                .setColor("Blue")
-        ],
-        components: []
-    });
-}
-
-
-    if (int.customId === "challenge_button_no") { 
-        
-   return int.update({
-        embeds: [
-            new EmbedBuilder()
-                .setTitle("✅ accepted successfully")
-                .setColor("Blue")
+                .setColor("Green")
         ],
         components: []
     });
@@ -530,7 +564,7 @@ components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel(
 
            start += 1
 
-                 await int.update({
+                const em = await int.update({
 
  
 
@@ -553,48 +587,139 @@ components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel(
             await int.followUp({content: "✅ready", flags: MessageFlags.Ephemeral})
 
 
-    }
+    
 
       if (start === 2) {
 
-         let time = 10
+         let time = 5
 
         
-        for (let index = 1; index <= 10; index++) {
+        for (let index = 1; index <= 5; index++) {
             
             time -= 1
 
            int.channel.send("⏳Game is starting in" + " "+ time + "...")
         
-           await new Promise(resolve => setTimeout(resolve, 3000));
+           await new Promise(resolve => setTimeout(resolve, 2000));
         
 
         const messages = await int.channel.messages.fetch({ limit: 1});
 
         await int.channel.bulkDelete(messages, true);
 
-        if (start !== 2) {break;}
+        if (start !== 2) {
 
-
-
-
-        }
-
-        const message = int.followUp("😭Game just canceled")
+   const message = int.followUp("😭Game just canceled")
 
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         int.channel.delete();
 
+        challeng.delete("playId")
+
+        break;
+        }
+
+        }
+
+    await em.edit({
+
+ 
+
+content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " +  " " + "👥"+"("+start+"/"+"2"+")",
+
+embeds: [new EmbedBuilder()
+    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
+    .setColor("Green")
+    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
+    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
+        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
+    )
+
+
+
+],
+
+components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("➖").setCustomId("ready").setStyle(ButtonStyle.Danger).setDisabled(true))]})
+
+        const row =  new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setStyle(ButtonStyle.Danger)
+                .setCustomId("chair")
+                .setLabel("🪑")
+                .setDisabled(true)
+        )
+    
+const b = await int.followUp({
+    content: "Be ready!",
+    components: [row]
+});
+
+await new Promise(resolve => setTimeout(resolve, 3000));
+
+await b.edit({  content: "🚨CLICK NOW🚨",
+    components: [
+        new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setStyle(ButtonStyle.Success)
+                .setCustomId("chair")
+                .setLabel("🪑")
+                .setDisabled(false)
+        )
+    ]
+});
+
+
+
       }
 
 
       }
 
+
+
+      
+    }          if (int.customId === "chair") {
+    
+        
+        await int.reply({  content: " ",
+    components: [
+        new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setStyle(ButtonStyle.Danger)
+                .setCustomId("chair")
+                .setLabel("🪑")
+                .setDisabled(true)
+        )
+    ]
+})
+
+     
+        
+       const messages = await int.channel.messages.fetch({ limit: 2});
+
+        int.channel.bulkDelete(messages, true);
+
+
+
+       await int.channel.send(`🥳${int.user} Has won the round`)
+    
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+     int.channel.send("The challeng has been ended, channel is deleteing in 3s")
+
+      
+     await new Promise(resolve => setTimeout(resolve, 3000));
+
+     int.channel.delete();
+    
     }
 
   }
-)
+
+
+    })
 
 client.on("channelCreate", (channel) => {if (channel.parent.name === "Challenges") {
     
