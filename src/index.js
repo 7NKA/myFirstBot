@@ -1,6 +1,24 @@
 require("dotenv").config();
 
 
+const Datebase = require("better-sqlite3");
+
+const db = new Datebase("datebase.db");
+
+
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS AgeUsers (
+    
+    userId TEXT PRIMARY KEY,
+    username TEXT,
+    age INTEGER
+    
+)
+    
+
+    `).run();
+
+
 
 const {
     Client,
@@ -16,7 +34,20 @@ const {
     MessageSearchAuthorType,
     AuditLogEvent,
     PermissionFlagsBits,
+    SelectMenuAssertions,
+    ComponentsV2Assertions,
+    TextDisplayBuilder,
+    SeparatorBuilder,
+    ContainerBuilder,
+    StringSelectMenuBuilder,
+    SeparatorComponent,
     time,
+    Role,
+    MessageFlagsBitField,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    TextInputAssertions
 } = require("discord.js");
 
 const client = new Client({
@@ -334,417 +365,358 @@ await new Promise(resolve => setTimeout(resolve, 600000));
 
 });
 
-// challeng system
+// search and sign system
 
-const players = new Map();
+client.on("messageCreate", async (msg) => {
 
-const challeng = new Map();
+    if (msg.content === "S&S") {
 
-const players2 = new Map();
+        const TextContainer = new TextDisplayBuilder()
+            .setContent("# Choose your actions!");
 
-const players3 = new Set();
+        const TextContainer2 = new TextDisplayBuilder()
+            .setContent("## •You have to apply to the server\n ## •So you can access other server channels");
 
-const timeout = new Map();
+        const sparetor = new SeparatorBuilder();
+
+        const DeleteButton = new ButtonBuilder()
+            .setCustomId("Delete")
+            .setEmoji("🗑️")
+            .setLabel("Delete my info")
+            .setStyle(ButtonStyle.Danger);
+
+        const SearchButton = new ButtonBuilder()
+            .setCustomId("MySelfSearch")
+            .setEmoji("🔎")
+            .setLabel("Show my info")
+            .setStyle(ButtonStyle.Primary);
+
+        const selectMenus = new StringSelectMenuBuilder()
+            .setCustomId("menu")
+            .setPlaceholder("choose!")
+            .addOptions([
+                {
+                    label: "Sing",
+                    description: "Insert your info",
+                    value: "1",
+                    emoji: "💾"
+                },
+                {
+                    label: "Update your info",
+                    description: "Update your old info",
+                    value: "3",
+                    emoji: "🔃"
+                },
+                {
+                    label: "Search for some one",
+                    description: "Search some one",
+                    value: "2",
+                    emoji: "🔎"
+                },
 
 
+            ]);
 
-let start = 0
+        const ButtonRow = new ActionRowBuilder()
+            .addComponents(DeleteButton, SearchButton);
+
+        const SelectRow = new ActionRowBuilder()
+            .addComponents(selectMenus);
+
+        const Container = new ContainerBuilder()
+            .addTextDisplayComponents(TextContainer)
+            .addSeparatorComponents(sparetor)
+            .addTextDisplayComponents(TextContainer2)
+            .addSeparatorComponents(sparetor)
+            .addActionRowComponents(SelectRow)
+            .addSeparatorComponents(sparetor)
+            .addActionRowComponents(ButtonRow);
+
+        await msg.channel.send({
+            flags: MessageFlags.IsComponentsV2,
+            components: [Container]
+        });
+    }
+
+});
 
 
 client.on("interactionCreate", async (int) => {
 
-if (!int.isChatInputCommand) return;
+    if (int.isStringSelectMenu()) {
 
-if (int.commandName === "challenge") {
+        if (int.customId === "menu") {
 
-const name = int.options.getUser("person")
+            const choice = int.values[0];
 
-    if (challeng.get("playIdd") === int.user.id) {return await int.reply({content: `❌ You have already sent a challeng to ${name}
-        wait for him to reply first` ,
-flags: MessageFlags.Ephemeral
+            if (choice === "1") {
 
+                const modal = new ModalBuilder()
+                    .setCustomId("SignModal")
+                    .setTitle("inter your info🔽");
 
-})} else {
+                const NameInput = new TextInputBuilder()
+                    .setCustomId("name")
+                    .setLabel("Name")
+                    .setPlaceholder("ex: Hussam")
+                    .setRequired(true)
+                    .setStyle(TextInputStyle.Short);
 
-     
+                    const AgeInput = new TextInputBuilder()
+                    .setCustomId("age")
+                    .setLabel("Age")
+                    .setPlaceholder("ex: 18")
+                    .setRequired(true)
+                    .setStyle(TextInputStyle.Short);
 
-// var
+                const NameRow = new ActionRowBuilder()
+                    .addComponents(NameInput)
 
-const player = int.options.getUser("person")
+                const AgeRow = new ActionRowBuilder()
+                    .addComponents(AgeInput)
 
+                modal.addComponents(NameRow, AgeRow);
 
-
-const Yes = new ButtonBuilder().setCustomId("challenge_button_yes").setLabel("✅").setStyle(ButtonStyle.Success)
-
-const No = new ButtonBuilder().setCustomId("challenge_button_no").setLabel("❌").setStyle(ButtonStyle.Danger)
-
-const row = new ActionRowBuilder().addComponents(Yes, No)
-
-const Embede = new EmbedBuilder().setColor("White")
-
-
-.setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
-.setTitle("__❗Some one has challenged you__")
-.setDescription(`From: ${int.guild} server`)
-.setTimestamp()
-.addFields(
-    {name: "__🤔Who is it__", value: `•${int.user.globalName}`},
-     {name: "__🎮Game type__", value: "chairs game"},
-    {name: "__💢How to Deny it__", value: "•just click the ❌ button down below"},
-    {name: "__👍How to accept it__", value: "•just click the ✅ button down below"});
-
-    if (!player) {return int.reply({content: "❌ i didn't find any one with that user"})}
-
-    if (player.id === int.user.id) {return int.reply({content: "❌ You can't challeng your self", flags: MessageFlags.Ephemeral})}
-
-    if (player.bot) {return int.reply({content: "❌ You can't challeng a bot", flags: MessageFlags.Ephemeral})}
-
-    
-     const msg = await player.send({ embeds: [Embede], components: [row] })
-
-     timeout.set("time", true)
-
-const Timeout = setTimeout(async () => {
-
-    if (!timeout.has("time")) return;
-
-     challeng.delete("playIdd")
+                await int.showModal(modal);
 
 
+            }
 
-    await msg.edit({
-        embeds: [
-            new EmbedBuilder()
-                .setTitle("❌challeng expierd")
-                .setColor("Red")
-                .setTimestamp()
-        ],
-        components: []
-    });
-}, 60000);
+                            if (choice === "2") {
 
-    await int.reply({content: "✅challeng has been sent",
-                flags: MessageFlags.Ephemeral
+                const modal = new ModalBuilder()
+                    .setCustomId("SearchModal")
+                    .setTitle("Search someone info🔽");
 
-                
-    });
+                const idInput = new TextInputBuilder()
+                    .setCustomId("id")
+                    .setLabel("Id")
+                    .setPlaceholder("ex: 11537238294204")
+                    .setRequired(true)
+                    .setStyle(TextInputStyle.Short);
 
-challeng.set("playIdd", int.user.id)
+                const idRow = new ActionRowBuilder()
+                    .addComponents(idInput)
 
+                modal.addComponents(idRow);
 
-}
-    
-    
-
-    players.set("playId", int.user.id)
-
-    players.set("play", int.user.globalName)
+                await int.showModal(modal);
 
 
+                }
+
+                    if (choice === "3") {
+
+                const modal = new ModalBuilder()
+                    .setCustomId("UpdateModal")
+                    .setTitle("Update your info🔽");
+
+                const NewNameInput = new TextInputBuilder()
+                    .setCustomId("NewName")
+                    .setLabel("change name")
+                    .setPlaceholder("ex: Hussam")
+                    .setRequired(true)
+                    .setStyle(TextInputStyle.Short);
+
+                const NewAgeInput = new TextInputBuilder()
+                    .setCustomId("NewAge")
+                    .setLabel("change Age")
+                    .setPlaceholder("ex: 18")
+                    .setRequired(true)
+                    .setStyle(TextInputStyle.Short);
+
+                const NewNameRow = new ActionRowBuilder()
+                    .addComponents(NewNameInput)
+
+                const NewAgeRow = new ActionRowBuilder()
+                    .addComponents(NewAgeInput)
+
+                modal.addComponents(NewNameRow, NewAgeRow);
+
+                await int.showModal(modal);
+
+         }
+
+      }
+
+   }  
 
 
+    if (int.isModalSubmit()) {
 
+        if (int.customId === "SignModal") {
 
-
-}
-       if (int.customId === "challenge_button_no") {
-
-timeout.delete("time")
-
-  challeng.delete("playIdd")
-
-    return int.update({
-        embeds: [
-            new EmbedBuilder()
-                .setTitle("❌ denied successfully")
-                .setColor("Red")
-                .setTimestamp()
-        ],
-        components: []
-    });
-
-
+         const name = int.fields.getTextInputValue("name")
   
-    await int.reply({content: "✅challeng has been sent",
-                flags: MessageFlags.Ephemeral
+         const age = int.fields.getTextInputValue("age")
 
-                
-    });
-
-
-
-   
-
-    players.set("playId", int.user.id)
-
-    players.set("play", int.user.globalName)
-
-    players.get("players")
-
-
-
-
-
-}
-    if (int.isButton) {
-
-
-    
-
-if (int.customId === "challenge_button_yes") {
-
-    timeout.delete()
-
-    await players2.set("player", int.user.id)
-
-
-    client.guilds.cache.first().channels.create({
-
-
-
-    name: `${int.user.globalName} vs ${players.get("play")}`,
-
-type: ChannelType.GuildText,
-
-parent: "1525311378922016839"
-
-       })
-
-    return int.update({
-        embeds: [
-            new EmbedBuilder()
-                .setTitle("✅ accepted successfully")
-                .setColor("Green")
-        ],
-        components: []
-    });
-}
-
-
-
-    if (int.customId === "ready") {
-
-    
-
-
-     if (players3.has(int.user.id)) {
-
-        start -= 1
-
-              await int.update({
-
- 
-
-content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " +  " " + "👥"+"("+start+"/"+"2"+")",
-
-embeds: [new EmbedBuilder()
-    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
-    .setColor("Green")
-    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
-    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
-        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
-    )
-
-
-
-],
-
-components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("🎮").setCustomId("ready").setStyle(ButtonStyle.Success))]})
-
-     players3.delete(int.user.id)
-        
-  await int.followUp({content: "❌not ready", flags: MessageFlags.Ephemeral})
-     
-        
-     
-
-     } else {
-
-           players3.add(int.user.id) 
-
-           start += 1
-
-                const em = await int.update({
-
- 
-
-content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " +  " " + "👥"+"("+start+"/"+"2"+")",
-
-embeds: [new EmbedBuilder()
-    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
-    .setColor("Green")
-    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
-    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
-        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
-    )
-
-
-
-],
-
-components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("🎮").setCustomId("ready").setStyle(ButtonStyle.Success))]})
-
-            await int.followUp({content: "✅ready", flags: MessageFlags.Ephemeral})
-
-
-    
-
-      if (start === 2) {
-
-         let time = 5
-
-        
-        for (let index = 1; index <= 5; index++) {
+         const check = db.prepare(`
             
-            time -= 1
+            SELECT * FROM AgeUsers
 
-           int.channel.send("⏳Game is starting in" + " "+ time + "...")
-        
-           await new Promise(resolve => setTimeout(resolve, 2000));
-        
+            WHERE userId = ?
+            `).get(int.user.id)
+            
+            if (check) {return int.reply({content: "❌You have already signed before!", flags: MessageFlags.Ephemeral});
+            
+            
+            }
 
-        const messages = await int.channel.messages.fetch({ limit: 1});
+         db.prepare(`
+            INSERT INTO AgeUsers(
+            
+            userId,
+            username,
+            age
+            
+            
+            )
+            VALUES (?, ?, ?)
+            `).run(
+                 int.user.id,
+                 name,
+                 age
+            );
 
-        await int.channel.bulkDelete(messages, true);
+        await int.reply({content: "✅You have been signed successfully", flags: MessageFlags.Ephemeral})
 
-        if (start !== 2) {
 
-   const message = int.followUp("😭Game just canceled")
-
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        int.channel.delete();
-
-        challeng.delete("playId")
-
-        break;
         }
 
-        }
-
-    await em.edit({
-
- 
-
-content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " +  " " + "👥"+"("+start+"/"+"2"+")",
-
-embeds: [new EmbedBuilder()
-    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
-    .setColor("Green")
-    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
-    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
-        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
-    )
-
-
-
-],
-
-components: [ new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("➖").setCustomId("ready").setStyle(ButtonStyle.Danger).setDisabled(true))]})
-
-        const row =  new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setStyle(ButtonStyle.Danger)
-                .setCustomId("chair")
-                .setLabel("🪑")
-                .setDisabled(true)
-        )
-    
-const b = await int.followUp({
-    content: "Be ready!",
-    components: [row]
-});
-
-await new Promise(resolve => setTimeout(resolve, 3000));
-
-await b.edit({  content: "🚨CLICK NOW🚨",
-    components: [
-        new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setStyle(ButtonStyle.Success)
-                .setCustomId("chair")
-                .setLabel("🪑")
-                .setDisabled(false)
-        )
-    ]
-});
-
-
-
-      }
-
-
-      }
-
-
-
-      
-    }          if (int.customId === "chair") {
-    
-        
-        await int.reply({  content: " ",
-    components: [
-        new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setStyle(ButtonStyle.Danger)
-                .setCustomId("chair")
-                .setLabel("🪑")
-                .setDisabled(true)
-        )
-    ]
-})
-
-     
-        
-       const messages = await int.channel.messages.fetch({ limit: 2});
-
-        int.channel.bulkDelete(messages, true);
-
-
-
-       await int.channel.send(`🥳${int.user} Has won the round`)
-    
-
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-     int.channel.send("The challeng has been ended, channel is deleteing in 3s")
-
-      
-     await new Promise(resolve => setTimeout(resolve, 3000));
-
-     int.channel.delete();
-    
     }
 
-  }
+                if (int.customId === "SearchModal") {
 
+             const idInput = int.fields.getTextInputValue("id") 
 
-    })
+            const user =  db.prepare(`
+                SELECT * FROM AgeUsers
+                
+                WHERE userId = ?
 
-client.on("channelCreate", (channel) => {if (channel.parent.name === "Challenges") {
+                `).get(idInput)
+
+                if (user) {
+
+                int.reply({embeds: [new EmbedBuilder().setColor("White")
+                    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4a3fRsnjuGAy4UjGdc3gj7FRBSQw3mg15T33a7ZIpQ&s=10")
+                    .setTitle("__🧾User info__")
+                    .addFields({name: "Name", value: `${user.username}`},
+                        {name: "Age", value: `${user.age}`}
+                    )
+                
+                
+                
+                ], flags: MessageFlags.Ephemeral})} else {int.reply({content: "❌Didn't find any member with the this id", flags: MessageFlags.Ephemeral})}
     
-    const Row = new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("🎮").setCustomId("ready").setStyle(ButtonStyle.Success))
+        }
+
+          if (int.isModalSubmit()) {
+
+
+           if (int.customId === "UpdateModal") {
+
+        const newname = int.fields.getTextInputValue("NewName")
+
+        const newage =  int.fields.getTextInputValue("NewAge")
+
+             const user =  db.prepare(`
+                SELECT * FROM AgeUsers
+                
+                WHERE userId = ?
+
+                `).get(int.user.id)
+
+                if (user) {
+
+                db.prepare(`
+                    
+                    UPDATE AgeUsers
+
+                    SET username = ?,  age = ?
+                    WHERE userId = ?
+            
+                    
+                    
+                    
+                    
+                    `).run(
+                      newname,
+                      newage,
+                      int.user.id
+                    )
+
+                  await int.reply({content:"✅Info has been updated successfully", flags: MessageFlags.Ephemeral})
+                    
+                    } else {int.reply({content:"❌You don't have any info to update", flags: MessageFlags.Ephemeral})}
+
+
+
+
+
+           }
+
+        } 
+
+});
+
+client.on("interactionCreate", async (int) => {
+
+     if (int.customId === "Delete") {
+
+                const user =  db.prepare(`
+                SELECT * FROM AgeUsers
+                
+                WHERE userId = ?
+                `).get(int.user.id)
+
+                if (user) {
+
+db.prepare(`
     
-    channel.send({
+    DELETE FROM AgeUsers
+    
+    WHERE userId = ?
+    `).run(int.user.id)
 
- 
-
-content: "<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">" + " " + " "+ "👥"+"("+start+"/"+"2"+")",
-
-embeds: [new EmbedBuilder()
-    .setTitle("<@" + players2.get("player") + ">" + " " + "vs" + " " + "<@" + players.get("playId") + ">")
-    .setColor("Green")
-    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK5B5gXSuH5yBpbAGYnHqbud2TrKrJXeM-JC5ydzrvLA&s=10")
-    .addFields({name: "❓__What's the game about__", value: "\n•You have to be the first one click the button\n"},
-        {name: "❓__When will the game is goning to start__", value: "\n•When the both of you click the 🎮 button\n"}
-    )
+     int.reply({content: "✅Your info got deleted successfully", flags: MessageFlags.Ephemeral})
 
 
 
-],
+     } else {return int.reply({content: "❌You don't have any info to delete", flags: MessageFlags.Ephemeral})}
+    }
 
-components: [Row]
+    if (int.customId === "MySelfSearch") {
+            const user =  db.prepare(`
+                
+                SELECT * FROM AgeUsers
+                
+                WHERE userId = ?
+
+                `).get(int.user.id)
+
+                if (user) {
+
+                int.reply({embeds: [new EmbedBuilder().setColor("White")
+                    .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4a3fRsnjuGAy4UjGdc3gj7FRBSQw3mg15T33a7ZIpQ&s=10")
+                    .setTitle("__🧾Your info__")
+                    .addFields({name: "Name", value: `${user.username}`},
+                        {name: "Age", value: `${user.age}`}
+                    )
+                
+                
+                
+                ], flags: MessageFlags.Ephemeral})} else {int.reply({content: "❌Didn't find any info about you", flags: MessageFlags.Ephemeral})}
+      
 
 
- } ) } })
-client.login(process.env.TOKEN);
+
+
+
+    }
+
+})
+
+
+
+client.login(process.env.TOKEN)
