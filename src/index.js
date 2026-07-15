@@ -288,8 +288,6 @@ if (int.commandName === "ban") {
         .setThumbnail(int.guild.iconURL())
         .setTimestamp();
 
-    // Try to send DM, but don't crash if DMs are closed
-
     try {
         await member.send({ embeds: [embed] });
     } catch (err) {
@@ -440,6 +438,7 @@ client.on("messageCreate", async (msg) => {
 
 });
 
+// sign
 
 client.on("interactionCreate", async (int) => {
 
@@ -479,6 +478,7 @@ client.on("interactionCreate", async (int) => {
 
                 await int.showModal(modal);
 
+// search
 
             }
 
@@ -504,6 +504,8 @@ client.on("interactionCreate", async (int) => {
 
 
                 }
+
+// update
 
                     if (choice === "3") {
 
@@ -541,6 +543,7 @@ client.on("interactionCreate", async (int) => {
 
    }  
 
+// sign system
 
     if (int.isModalSubmit()) {
 
@@ -585,8 +588,12 @@ client.on("interactionCreate", async (int) => {
 
     }
 
+// search system
+
                 if (int.customId === "SearchModal") {
 
+if (int.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                
              const idInput = int.fields.getTextInputValue("id") 
 
             const user =  db.prepare(`
@@ -609,7 +616,11 @@ client.on("interactionCreate", async (int) => {
                 
                 ], flags: MessageFlags.Ephemeral})} else {int.reply({content: "❌Didn't find any member with the this id", flags: MessageFlags.Ephemeral})}
     
-        }
+        } else {int.reply({content: "❌You don't have the premission for that", flags: MessageFlags.Ephemeral})}
+    
+    }
+
+// update info system
 
           if (int.isModalSubmit()) {
 
@@ -662,6 +673,8 @@ client.on("interactionCreate", async (int) => {
 
 client.on("interactionCreate", async (int) => {
 
+// delete info system
+
      if (int.customId === "Delete") {
 
                 const user =  db.prepare(`
@@ -685,6 +698,8 @@ db.prepare(`
 
      } else {return int.reply({content: "❌You don't have any info to delete", flags: MessageFlags.Ephemeral})}
     }
+
+// self Search system
 
     if (int.customId === "MySelfSearch") {
             const user =  db.prepare(`
