@@ -735,6 +735,8 @@ db.prepare(`
       
                 if (int.customId === "AllSearch") {
 
+                    if (int.member.permissions.has(PermissionFlagsBits.Administrator)) {
+
             const users = db.prepare(`
                 
                 SELECT * FROM AgeUsers
@@ -748,7 +750,8 @@ db.prepare(`
 
               let number = 0
 
-                 users.forEach(user => {number += 1 ,felids.push({name: number+ "-" + " " + " " +`${user.username}`, value: `${user.age}`},)
+                 users.forEach(user => {number += 1 ,felids.push({name: number+ "-" + " " + " " +`<@${user.userId}>`, 
+                    value: `\nname: ${user.username} \nage: ${user.age}`},)
 
                 })
 
@@ -774,8 +777,8 @@ db.prepare(`
 
                 }
 
-            }
-
+            } else {int.reply({content: "❌You don't have the premission for that", flags: MessageFlags.Ephemeral})}
+        }
 })
 
 
