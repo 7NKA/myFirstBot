@@ -389,6 +389,12 @@ client.on("messageCreate", async (msg) => {
             .setLabel("Show my info")
             .setStyle(ButtonStyle.Primary);
 
+        const SearchAllButton = new ButtonBuilder()
+            .setCustomId("AllSearch")
+            .setEmoji("👥")
+            .setLabel("Show all members info")
+            .setStyle(ButtonStyle.Primary);
+
         const selectMenus = new StringSelectMenuBuilder()
             .setCustomId("menu")
             .setPlaceholder("choose!")
@@ -402,21 +408,23 @@ client.on("messageCreate", async (msg) => {
                 {
                     label: "Update your info",
                     description: "Update your old info",
-                    value: "3",
+                    value: "2",
                     emoji: "🔃"
                 },
                 {
                     label: "Search for some one",
-                    description: "Search some one",
-                    value: "2",
+                    description: "Search some one info",
+                    value: "3",
                     emoji: "🔎"
                 },
+
+
 
 
             ]);
 
         const ButtonRow = new ActionRowBuilder()
-            .addComponents(DeleteButton, SearchButton);
+            .addComponents(DeleteButton, SearchButton, SearchAllButton);
 
         const SelectRow = new ActionRowBuilder()
             .addComponents(selectMenus);
@@ -482,7 +490,7 @@ client.on("interactionCreate", async (int) => {
 
             }
 
-                            if (choice === "2") {
+                            if (choice === "3") {
 
                 const modal = new ModalBuilder()
                     .setCustomId("SearchModal")
@@ -507,7 +515,7 @@ client.on("interactionCreate", async (int) => {
 
 // update
 
-                    if (choice === "3") {
+                    if (choice === "2") {
 
                 const modal = new ModalBuilder()
                     .setCustomId("UpdateModal")
@@ -722,13 +730,51 @@ db.prepare(`
                 
                 
                 ], flags: MessageFlags.Ephemeral})} else {int.reply({content: "❌Didn't find any info about you", flags: MessageFlags.Ephemeral})}
-      
-
-
-
-
 
     }
+      
+                if (int.customId === "AllSearch") {
+
+            const users = db.prepare(`
+                
+                SELECT * FROM AgeUsers
+                `).all();
+
+                let member = {};
+
+              
+                    
+              let  felids = []
+
+              let number = 0
+
+                 users.forEach(user => {number += 1 ,felids.push({name: number+ "-" + " " + " " +`${user.username}`, value: `${user.age}`},)
+
+                })
+
+                   if (users.length > 0) {
+
+                      const embed = new EmbedBuilder()
+                      .setTitle("__👥All members__")
+                      .setThumbnail("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4a3fRsnjuGAy4UjGdc3gj7FRBSQw3mg15T33a7ZIpQ&s=10")
+                      .setColor("White")
+                     .addFields(felids)
+
+                    
+                        int.reply({embeds: [embed], flags: MessageFlags.Ephemeral})
+                    
+
+                } else {
+
+                    const embeda = new EmbedBuilder()
+                      .setColor("White")
+                     .setDescription("👥No Members yet")
+
+                     int.reply({embeds: [embeda], flags: MessageFlags.Ephemeral})
+
+                }
+
+            }
 
 })
 
